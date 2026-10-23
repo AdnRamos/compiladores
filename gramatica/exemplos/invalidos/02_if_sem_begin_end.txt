@@ -1,0 +1,6 @@
+{ ERRO: o corpo do "if" deve ser um bloco begin ... end }
+program erro2;
+var x: integer;
+begin
+  if x > 1 then x := 2;
+end.

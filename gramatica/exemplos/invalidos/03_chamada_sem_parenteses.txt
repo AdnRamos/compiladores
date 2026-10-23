@@ -1,0 +1,9 @@
+{ ERRO: chamada de procedimento exige parênteses, mesmo sem argumentos }
+program erro3;
+procedure ola();
+begin
+  print(1);
+end;
+begin
+  ola;
+end.

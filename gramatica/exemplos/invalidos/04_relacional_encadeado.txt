@@ -1,0 +1,6 @@
+{ ERRO: operadores relacionais não podem ser encadeados (a < b < c) }
+program erro4;
+var a, b, c: integer;
+begin
+  print(a < b < c);
+end.

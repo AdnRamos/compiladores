@@ -1,0 +1,5 @@
+{ ERRO: "-" não faz parte de identificador (igual ao exemplo da professora) }
+program MODELO-ERRADO;
+begin
+  print(1);
+end.

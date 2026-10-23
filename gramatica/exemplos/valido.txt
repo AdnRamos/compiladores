@@ -1,0 +1,68 @@
+{ Programa que usa TODOS os recursos exigidos na atividade }
+program exemplo;
+var x, y: integer;           { (1) variáveis inteiras }
+    achou: boolean;         { (1) variável booleana  }
+
+{ (2) procedimento SEM parâmetros }
+procedure separador();
+begin
+  print(0);                { (9) impressão de constante }
+end;
+
+{ (2) procedimento COM parâmetro }
+procedure imprimir(valor: integer);
+begin
+  print(valor);            { (9) impressão de variável }
+end;
+
+{ (2) função COM parâmetro }
+function dobro(n: integer): integer;
+begin
+  return n * 2;             { (7) retorno de valor }
+end;
+
+{ (2) função com dois parâmetros e variável local }
+function maior(a: integer, b: integer): boolean;
+var r: boolean;
+begin
+  r := a > b;                { (3) atribuição; (11) > }
+  return r;
+end;
+
+{ (2) função SEM parâmetros }
+function dez(): integer;
+begin
+  return 10;
+end;
+
+begin
+  x := dez();                              { (4) chamada de função sem parâmetros }
+  y := dobro(x) + (3 - 1) / 2 * -1;        { (4) chamada com parâmetro; (10) + - * / }
+  achou := false;
+  separador();                             { (4) chamada de procedimento }
+
+  while x >= 0 do                     { (6) laço; (11) >= }
+  begin
+    x := x - 1;
+    if x == 5 then                        { (5) if; (11) == }
+    begin
+      continue;                            { (8) continue }
+    end
+    else if x < 2 then                   { (5) else if; (11) < }
+    begin
+      break;                                { (8) break }
+    end
+    imprimir(x);
+  end
+
+  if maior(y, x) != achou then            { (11) != }
+  begin
+    print(y);
+  end
+  else                                    { (5) else }
+  begin
+    print(true);
+  end
+
+  print(x <= 100);                       { (11) <= }
+end.

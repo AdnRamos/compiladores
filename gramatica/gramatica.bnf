@@ -1,0 +1,170 @@
+# =====================================================================
+#  Gramática LL(1) da linguagem do projeto de Compiladores (UFAPE)
+# ---------------------------------------------------------------------
+#  Notação (BNF, como na Seção 2.2 do livro-texto, Aho/Sethi/Ullman):
+#    <nome>      não-terminal
+#    "texto"     terminal (token): palavra reservada ou símbolo
+#    ID, NUM     tokens identificador e número inteiro (ver seção 6)
+#    ::=         "pode ter a forma" (no livro: ->)
+#    |           alternativa ("ou")
+#    ε           cadeia vazia
+#    #           comentário deste arquivo
+#  Linhas que começam com | continuam a produção da linha anterior.
+#  Explicação completa de cada produção: README.md
+# =====================================================================
+
+# ---------------------------------------------------------------------
+# 1. ESTRUTURA DO PROGRAMA
+# ---------------------------------------------------------------------
+<programa> ::= "program" ID ";" <bloco> "."
+
+<bloco> ::= <secao_variaveis> <secao_subrotinas> <comando_composto>
+
+# ---------------------------------------------------------------------
+# 2. DECLARAÇÃO DE VARIÁVEIS (inteiro e booleano)
+# ---------------------------------------------------------------------
+<secao_variaveis> ::= "var" <declaracao_variaveis> ";" <mais_declaracoes>
+                    | ε
+
+<mais_declaracoes> ::= <declaracao_variaveis> ";" <mais_declaracoes>
+                     | ε
+
+<declaracao_variaveis> ::= <lista_identificadores> ":" <tipo>
+
+<lista_identificadores> ::= ID <mais_identificadores>
+
+<mais_identificadores> ::= "," ID <mais_identificadores>
+                         | ε
+
+<tipo> ::= "integer"
+         | "boolean"
+
+# ---------------------------------------------------------------------
+# 3. DECLARAÇÃO DE PROCEDIMENTOS E FUNÇÕES (sem e com parâmetros)
+# ---------------------------------------------------------------------
+<secao_subrotinas> ::= <declaracao_subrotina> <secao_subrotinas>
+                     | ε
+
+<declaracao_subrotina> ::= <declaracao_procedimento>
+                         | <declaracao_funcao>
+
+<declaracao_procedimento> ::= "procedure" ID <parametros_formais> ";" <corpo_subrotina> ";"
+
+<declaracao_funcao> ::= "function" ID <parametros_formais> ":" <tipo> ";" <corpo_subrotina> ";"
+
+<corpo_subrotina> ::= <secao_variaveis> <comando_composto>
+
+<parametros_formais> ::= "(" <lista_parametros> ")"
+
+<lista_parametros> ::= <parametro> <mais_parametros>
+                     | ε
+
+<mais_parametros> ::= "," <parametro> <mais_parametros>
+                    | ε
+
+<parametro> ::= ID ":" <tipo>
+
+# ---------------------------------------------------------------------
+# 4. COMANDOS
+# ---------------------------------------------------------------------
+<comando_composto> ::= "begin" <lista_comandos> "end"
+
+<lista_comandos> ::= <comando> <lista_comandos>
+                   | ε
+
+# Cada alternativa começa com um token diferente (livro, p. 81-82:
+# as palavras-chave indicam qual alternativa usar).
+<comando> ::= <comando_identificador> ";"
+            | <comando_condicional>
+            | <comando_enquanto>
+            | <comando_retorno> ";"
+            | <comando_desvio> ";"
+            | <comando_escrita> ";"
+            | <comando_composto>
+
+# Atribuição e chamada de procedimento começam ambas com ID:
+# fatoração à esquerda (livro, Algoritmo 4.2, p. 80).
+<comando_identificador> ::= ID <resto_comando_identificador>
+
+<resto_comando_identificador> ::= ":=" <expressao>
+                                | <argumentos>
+
+<argumentos> ::= "(" <lista_argumentos> ")"
+
+<lista_argumentos> ::= <expressao> <mais_argumentos>
+                     | ε
+
+<mais_argumentos> ::= "," <expressao> <mais_argumentos>
+                    | ε
+
+# Corpo sempre entre begin/end: evita a ambiguidade do "else vazio"
+# (livro, p. 78-79 e Exemplo 4.19, p. 85).
+<comando_condicional> ::= "if" <expressao> "then" <comando_composto> <parte_senao>
+
+<parte_senao> ::= "else" <bloco_senao>
+                | ε
+
+<bloco_senao> ::= <comando_composto>
+                | <comando_condicional>
+
+<comando_enquanto> ::= "while" <expressao> "do" <comando_composto>
+
+<comando_retorno> ::= "return" <expressao>
+
+<comando_desvio> ::= "break"
+                   | "continue"
+
+<comando_escrita> ::= "print" "(" <expressao> ")"
+
+# ---------------------------------------------------------------------
+# 5. EXPRESSÕES (precedência: relacional < aditiva < multiplicativa < fator)
+#    Recursão à esquerda eliminada com A -> βA', A' -> αA' | ε
+#    (livro, p. 79, Exemplo 4.8 e Algoritmo 4.1).
+# ---------------------------------------------------------------------
+<expressao> ::= <expressao_simples> <resto_expressao>
+
+<resto_expressao> ::= <operador_relacional> <expressao_simples>
+                    | ε
+
+<operador_relacional> ::= "==" | "!=" | ">" | ">=" | "<" | "<="
+
+<expressao_simples> ::= <termo> <resto_expressao_simples>
+
+<resto_expressao_simples> ::= <operador_aditivo> <termo> <resto_expressao_simples>
+                            | ε
+
+<operador_aditivo> ::= "+" | "-"
+
+<termo> ::= <fator> <resto_termo>
+
+<resto_termo> ::= <operador_multiplicativo> <fator> <resto_termo>
+                | ε
+
+<operador_multiplicativo> ::= "*" | "/"
+
+<fator> ::= ID <resto_fator>
+          | NUM
+          | "true"
+          | "false"
+          | "(" <expressao> ")"
+          | "-" <fator>
+
+# Variável (x) ou chamada de função (f(...)): também fatorado.
+<resto_fator> ::= <argumentos>
+                | ε
+
+# ---------------------------------------------------------------------
+# 6. TOKENS ID E NUM
+#    Como no livro (Seção 4.3, p. 77, e Exemplo 4.11, p. 80), os
+#    caracteres de identificadores e números não são descritos pela
+#    gramática sintática: eles chegam como os tokens ID e NUM.
+#    Sua forma é dada pelas definições regulares abaixo.
+# ---------------------------------------------------------------------
+#  ID       ::= <letra> { <letra> | <digito> | "_" }
+#  NUM      ::= <digito> { <digito> }
+#  <letra>  ::= a | b | ... | z | A | B | ... | Z
+#  <digito> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+#  Comentários: tudo entre { e } é descartado.
+#  Palavras reservadas (não podem ser ID):
+#    program var integer boolean procedure function begin end
+#    if then else while do return break continue print true false

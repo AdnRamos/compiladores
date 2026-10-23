@@ -1,0 +1,6 @@
+{ ERRO: só existem os tipos integer e boolean }
+program erro5;
+var x: real;
+begin
+  x := 1;
+end.

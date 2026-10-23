@@ -1,0 +1,5 @@
+{ ERRO: o programa deve terminar com "." }
+program erro6;
+begin
+  print(1);
+end
